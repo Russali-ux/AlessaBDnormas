@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Normas DIGEMID</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f4f8;
+      color: #222;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #0d4f8b;
+      color: #fff;
+      padding: 1.5rem 2rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,.25);
+    }
+    header h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: .03em; }
+    header p  { font-size: .875rem; opacity: .8; margin-top: .25rem; }
+
+    main {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem 3rem;
+    }
+
+    /* ── Filtro de búsqueda ── */
+    .search-bar {
+      display: flex;
+      gap: .75rem;
+      margin-bottom: 1.5rem;
+    }
+    .search-bar input {
+      flex: 1;
+      padding: .6rem 1rem;
+      border: 1px solid #c8d6e5;
+      border-radius: 8px;
+      font-size: .95rem;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .search-bar input:focus { border-color: #0d4f8b; }
+
+    /* ── Grupo de tipo ── */
+    .group { margin-bottom: 1.25rem; }
+
+    .group-header {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      background: #0d4f8b;
+      color: #fff;
+      padding: .75rem 1.1rem;
+      border-radius: 8px 8px 0 0;
+      cursor: pointer;
+      user-select: none;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    .group-header .arrow {
+      margin-left: auto;
+      transition: transform .25s;
+      font-size: .85rem;
+    }
+    .group-header.open .arrow { transform: rotate(180deg); }
+
+    .group-body {
+      border: 1px solid #c8d6e5;
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    /* ── Item de norma ── */
+    .norma-header {
+      display: flex;
+      align-items: flex-start;
+      gap: .75rem;
+      padding: .85rem 1.1rem;
+      cursor: pointer;
+      border-bottom: 1px solid #e8eef5;
+      transition: background .15s;
+    }
+    .norma-header:last-child { border-bottom: none; }
+    .norma-header:hover { background: #f5f8fc; }
+
+    .norma-id {
+      flex-shrink: 0;
+      font-weight: 700;
+      font-size: .8rem;
+      background: #e8f0fb;
+      color: #0d4f8b;
+      padding: .25rem .55rem;
+      border-radius: 4px;
+      min-width: 9rem;
+      text-align: center;
+    }
+
+    .norma-meta { flex: 1; min-width: 0; }
+    .norma-titulo {
+      font-size: .9rem;
+      font-weight: 600;
+      line-height: 1.35;
+    }
+    .norma-fecha {
+      font-size: .78rem;
+      color: #666;
+      margin-top: .2rem;
+    }
+    .badge {
+      display: inline-block;
+      font-size: .7rem;
+      padding: .15rem .45rem;
+      border-radius: 20px;
+      margin-right: .3rem;
+      font-weight: 600;
+    }
+    .badge-nueva   { background: #d1fae5; color: #065f46; }
+    .badge-modif   { background: #fef3c7; color: #92400e; }
+    .badge-deroga  { background: #fee2e2; color: #991b1b; }
+
+    .norma-arrow {
+      flex-shrink: 0;
+      color: #888;
+      font-size: .8rem;
+      margin-top: .3rem;
+      transition: transform .2s;
+    }
+
+    .norma-body {
+      display: none;
+      padding: .9rem 1.1rem 1.1rem 1.1rem;
+      border-bottom: 1px solid #e8eef5;
+      background: #fafcff;
+      font-size: .87rem;
+      line-height: 1.6;
+    }
+    .norma-body.open { display: block; }
+    .norma-header.open .norma-arrow { transform: rotate(180deg); }
+
+    .norma-body .detalle {
+      white-space: pre-line;
+      color: #333;
+      margin-bottom: .8rem;
+    }
+    .norma-body .padre {
+      color: #555;
+      font-size: .82rem;
+      margin-bottom: .5rem;
+    }
+    .norma-body a {
+      display: inline-block;
+      margin-top: .4rem;
+      padding: .4rem .9rem;
+      background: #0d4f8b;
+      color: #fff;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: .82rem;
+      font-weight: 600;
+      transition: background .2s;
+    }
+    .norma-body a:hover { background: #0a3d6e; }
+
+    /* sin resultados */
+    .no-results {
+      text-align: center;
+      padding: 2rem;
+      color: #888;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Normas Legales DIGEMID</h1>
+  <p>Listado de normas y resoluciones del Ministerio de Salud del Perú</p>
+</header>
+
+<main>
+  <div class="search-bar">
+    <input type="text" id="busqueda" placeholder="Buscar por ID, título, subtipo…" />
+  </div>
+
+  <div id="acordeon"></div>
+  <p class="no-results" id="sinResultados">No se encontraron normas que coincidan con la búsqueda.</p>
+</main>
+
+<script>
+  fetch('normas_digemid.json')
+    .then(r => r.json())
+    .then(data => init(data));
+
+  function badgeClass(subtipo) {
+    if (!subtipo) return '';
+    const s = subtipo.toLowerCase();
+    if (s.includes('nueva'))  return 'badge-nueva';
+    if (s.includes('modif'))  return 'badge-modif';
+    if (s.includes('deroga')) return 'badge-deroga';
+    return '';
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '';
+    const [y, m, d] = iso.split('-');
+    return `${d}/${m}/${y}`;
+  }
+
+  function init(data) {
+    const contenedor = document.getElementById('acordeon');
+    const sinResultados = document.getElementById('sinResultados');
+
+    // Agrupar por tipo
+    const grupos = {};
+    data.forEach(n => {
+      const t = n.tipo || 'Otros';
+      if (!grupos[t]) grupos[t] = [];
+      grupos[t].push(n);
+    });
+
+    // Orden preferido de grupos
+    const orden = ['Ley', 'Decreto Supremo', 'Resolución Ministerial', 'Resolución Directoral'];
+    const tiposOrdenados = [
+      ...orden.filter(t => grupos[t]),
+      ...Object.keys(grupos).filter(t => !orden.includes(t))
+    ];
+
+    tiposOrdenados.forEach(tipo => {
+      const normas = grupos[tipo];
+      const grupoEl = document.createElement('div');
+      grupoEl.className = 'group';
+      grupoEl.dataset.tipo = tipo;
+
+      const gh = document.createElement('div');
+      gh.className = 'group-header open';
+      gh.innerHTML = `<span>${tipo}</span><span class="badge" style="background:#ffffff33;color:#fff;font-size:.75rem">${normas.length}</span><span class="arrow">▼</span>`;
+      gh.addEventListener('click', () => {
+        const body = grupoEl.querySelector('.group-body');
+        const isOpen = gh.classList.toggle('open');
+        body.style.display = isOpen ? '' : 'none';
+      });
+
+      const gb = document.createElement('div');
+      gb.className = 'group-body';
+
+      normas.forEach(n => {
+        const itemHeader = document.createElement('div');
+        itemHeader.className = 'norma-header';
+        itemHeader.dataset.search = [n.id, n.titulo, n.subtipo, n.detalle, n.padre].join(' ').toLowerCase();
+
+        itemHeader.innerHTML = `
+          <span class="norma-id">${n.id}</span>
+          <div class="norma-meta">
+            <div class="norma-titulo">
+              <span class="badge ${badgeClass(n.subtipo)}">${n.subtipo || ''}</span>
+              ${n.titulo}
+            </div>
+            <div class="norma-fecha">${formatDate(n.fecha)}</div>
+          </div>
+          <span class="norma-arrow">▼</span>`;
+
+        const itemBody = document.createElement('div');
+        itemBody.className = 'norma-body';
+        itemBody.innerHTML = `
+          ${n.padre ? `<p class="padre"><strong>Norma relacionada:</strong> ${n.padre}</p>` : ''}
+          <p class="detalle">${n.detalle || ''}</p>
+          ${n.enlace ? `<a href="${n.enlace}" target="_blank" rel="noopener">Ver norma oficial ↗</a>` : ''}`;
+
+        itemHeader.addEventListener('click', () => {
+          const isOpen = itemBody.classList.toggle('open');
+          itemHeader.classList.toggle('open', isOpen);
+        });
+
+        gb.appendChild(itemHeader);
+        gb.appendChild(itemBody);
+      });
+
+      grupoEl.appendChild(gh);
+      grupoEl.appendChild(gb);
+      contenedor.appendChild(grupoEl);
+    });
+
+    // Búsqueda en tiempo real
+    document.getElementById('busqueda').addEventListener('input', function () {
+      const q = this.value.toLowerCase().trim();
+      let totalVisible = 0;
+
+      document.querySelectorAll('.group').forEach(grupo => {
+        let visibles = 0;
+        grupo.querySelectorAll('.norma-header').forEach(header => {
+          const coincide = !q || header.dataset.search.includes(q);
+          const body = header.nextElementSibling;
+          header.style.display = coincide ? '' : 'none';
+          body.style.display = (coincide && body.classList.contains('open')) ? '' : 'none';
+          if (!coincide) body.style.display = 'none';
+          if (coincide) visibles++;
+        });
+        grupo.style.display = visibles ? '' : 'none';
+        totalVisible += visibles;
+      });
+
+      sinResultados.style.display = totalVisible === 0 ? 'block' : 'none';
+    });
+  }
+</script>
+</body>
+</html>
