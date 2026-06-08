@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Árbol de Normas — DIGEMID</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#f0f2f8;--surface:#ffffff;--surface2:#e8ecf6;
+  --border:rgba(30,58,120,.12);--border-strong:rgba(30,58,120,.28);
+  --text:#0f1c3f;--text-2:#3d4f7a;--text-3:#8494b8;
+  --brand:#1e3a78;--brand-dark:#132a5e;--brand-light:#c8d4f0;--brand-xlight:#eef1fb;
+  --gold:#b8860b;--gold-light:#f5e6b0;--gold-xlight:#fdf8e7;--gray:#1e2d50;
+  --blue-bg:#dde6f8;--blue-text:#1e3a78;
+  --teal-bg:#d6f0ee;--teal-text:#0d6b52;
+  --coral-bg:#faeae6;--coral-text:#943819;--coral-border:#f0b49e;
+  --purple-bg:#eeecfe;--purple-text:#4e47b0;
+  --amber-bg:#f5e6b0;--amber-text:#7e4c0a;
+  --gray-bg:#e8ecf6;--gray-text:#3d4f7a;
+  --green-bg:#e8f2da;--green-text:#376010;
+  --r-sm:6px;--r-md:10px;--r-lg:14px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;min-height:100vh;}
+.page{max-width:980px;margin:0 auto;padding:0 2rem 3rem;}
+
+/* Topbar */
+.topbar{background:linear-gradient(135deg,#1e3a78 0%,#132a5e 100%);padding:0 2rem;margin:0 -2rem 2.5rem;display:flex;align-items:center;justify-content:space-between;height:64px;gap:1rem;box-shadow:0 2px 12px rgba(30,58,120,.18);}
+.topbar-left{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:34px;height:34px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.topbar-title{font-size:14px;font-weight:600;color:#fff;letter-spacing:.01em;}
+.topbar-badge{font-size:11px;padding:3px 10px;border-radius:100px;background:rgba(184,134,11,.25);color:#f5e6b0;font-weight:500;border:1px solid rgba(184,134,11,.4);}
+.topbar-sync{display:flex;align-items:center;gap:5px;font-size:11px;color:rgba(255,255,255,.6);}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--text-3);}
+.sync-dot.ok{background:#4caf50;}
+.sync-dot.loading{background:#e6a817;animation:pulse 1s infinite;}
+.sync-dot.error{background:#c0392b;}
+
+/* Header */
+.header{margin-bottom:2rem;animation:fadeUp .4s ease both;}
+.breadcrumb{font-size:11px;color:var(--text-3);margin-bottom:4px;}
+.breadcrumb a{color:var(--text-3);text-decoration:none;transition:color .15s;}
+.breadcrumb a:hover{color:var(--brand);}
+.main-title{font-size:28px;font-weight:600;letter-spacing:-.02em;color:var(--gray);margin-bottom:4px;}
+.sub-title{font-size:13px;color:var(--text-2);}
+.sub-title a{color:var(--brand);text-decoration:none;}
+.sub-title a:hover{text-decoration:underline;}
+.header-row{display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
+.btn-refresh{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--brand);border-radius:var(--r-md);font-size:13px;font-family:'DM Sans',sans-serif;color:#fff;border:none;cursor:pointer;font-weight:500;transition:background .15s;box-shadow:0 2px 8px rgba(30,58,120,.2);}
+.btn-refresh:hover{background:var(--brand-dark);}
+.btn-refresh.spinning svg{animation:spin .8s linear infinite;}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:2rem;animation:fadeUp .4s .05s ease both;}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:12px 14px;position:relative;overflow:hidden;}
+.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--brand) 0%,var(--gold) 100%);}
+.stat-label{font-size:11px;color:var(--text-3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em;}
+.stat-val{font-size:22px;font-weight:600;color:var(--brand-dark);line-height:1;}
+
+/* Toolbar */
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:1.2rem;flex-wrap:wrap;animation:fadeUp .4s .1s ease both;}
+.search-wrap{flex:1;min-width:200px;position:relative;}
+.search-input{width:100%;padding:9px 12px 9px 36px;border:1px solid var(--border-strong);border-radius:var(--r-md);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);background:var(--surface);outline:none;transition:border-color .15s,box-shadow .15s;}
+.search-input:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(30,58,120,.12);}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-3);pointer-events:none;}
+.btn-sm{display:inline-flex;align-items:center;gap:5px;padding:7px 12px;border:1px solid var(--border-strong);border-radius:var(--r-md);font-size:12px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;background:var(--surface);color:var(--text-2);transition:all .15s;white-space:nowrap;}
+.btn-sm:hover{background:var(--surface2);color:var(--brand-dark);border-color:var(--brand);}
+.btn-sm.active{background:var(--brand);color:#fff;border-color:var(--brand);}
+.filter-group{display:flex;gap:6px;flex-wrap:wrap;}
+
+/* Section label */
+.sec-label{font-size:11px;font-weight:600;color:var(--brand-dark);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.sec-label::before{content:'';display:inline-block;width:3px;height:14px;background:linear-gradient(180deg,var(--brand) 0%,var(--gold) 100%);border-radius:2px;}
+
+/* States */
+.loading-card{padding:3rem;text-align:center;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);}
+.spinner{width:28px;height:28px;border:2px solid var(--border-strong);border-top-color:var(--brand);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px;}
+.loading-text{font-size:13px;color:var(--text-3);}
+.error-card{padding:1.5rem;background:var(--coral-bg);border:1px solid var(--coral-border);border-radius:var(--r-lg);color:var(--coral-text);font-size:13px;line-height:1.7;}
+.no-results{padding:2.5rem;text-align:center;color:var(--text-3);font-size:13px;}
+
+/* Tree */
+.tree-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;animation:fadeUp .4s .15s ease both;}
+.node{border-bottom:1px solid var(--border);}
+.node:last-child{border-bottom:none;}
+/* Nodos ocultos por filtro */
+.node.hidden{display:none;}
+/* Nodos visibles como contenedor-puente (su header se oculta, su children-wrap se muestra) */
+.node.bridge > .node-header{display:none;}
+.node.bridge > .node-children{display:block !important;}
+/* Nodo matching resaltado */
+.node.matched > .node-header{background:var(--brand-xlight);}
+
+.node-header{display:flex;align-items:center;cursor:pointer;user-select:none;transition:background .15s;}
+.node-header:hover{background:var(--brand-xlight);}
+.node-indent-line{width:20px;height:100%;border-right:1px dashed var(--border-strong);flex-shrink:0;}
+.node-toggle{width:28px;height:48px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.toggle-icon{width:16px;height:16px;border-radius:4px;background:var(--surface2);border:1px solid var(--border-strong);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text-2);transition:all .2s;}
+.node-header.has-children .toggle-icon{background:var(--brand-light);border-color:var(--brand);color:var(--brand-dark);}
+.node-header.open .toggle-icon{background:var(--brand);border-color:var(--brand-dark);color:#fff;}
+.node-leaf-dot{width:28px;height:48px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.leaf-dot{width:6px;height:6px;border-radius:50%;background:var(--border-strong);}
+.node-content{flex:1;padding:10px 14px 10px 4px;min-width:0;}
+.node-top{display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.node-title{font-size:13px;font-weight:500;color:var(--gray);line-height:1.4;}
+.node-header.open .node-title{color:var(--brand);font-weight:600;}
+.node-meta{font-size:11px;color:var(--text-3);margin-top:3px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.node-date,.node-id{font-family:'DM Mono',monospace;font-size:10px;}
+.node-padre{font-size:10px;color:var(--amber-text);background:var(--gold-xlight);border:1px solid var(--gold-light);border-radius:4px;padding:1px 6px;}
+.node-raiz{font-size:10px;color:var(--brand);font-weight:700;letter-spacing:.02em;}
+.node-actions{padding:0 12px 0 4px;flex-shrink:0;display:flex;gap:5px;align-items:center;}
+.btn-detail{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:4px 10px;border-radius:100px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text-2);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;}
+.btn-detail:hover{background:var(--brand-light);border-color:var(--brand);color:var(--brand-dark);}
+.btn-link{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:100px;border:1px solid var(--brand);background:var(--brand);color:#fff;text-decoration:none;transition:background .15s;flex-shrink:0;}
+.btn-link:hover{background:var(--brand-dark);}
+
+/* Badges */
+.bdg{font-size:10px;padding:2px 7px;border-radius:100px;font-weight:500;display:inline-block;white-space:nowrap;}
+.b-blue{background:var(--blue-bg);color:var(--blue-text);}
+.b-teal{background:var(--teal-bg);color:var(--teal-text);}
+.b-coral{background:var(--coral-bg);color:var(--coral-text);}
+.b-purple{background:var(--purple-bg);color:var(--purple-text);}
+.b-amber{background:var(--amber-bg);color:var(--amber-text);}
+.b-gray{background:var(--gray-bg);color:var(--gray-text);}
+.b-green{background:var(--green-bg);color:var(--green-text);}
+.bdg-nueva{background:#e8f2da;color:#376010;}
+.bdg-modif{background:#fff8e1;color:#7e4c0a;}
+.bdg-deroga{background:var(--coral-bg);color:var(--coral-text);}
+
+.node-children{display:none;}
+.node-children.open{display:block;}
+
+/* Detail Panel */
+.detail-overlay{position:fixed;inset:0;background:rgba(0,0,0,.38);z-index:100;display:none;}
+.detail-overlay.open{display:flex;align-items:flex-end;justify-content:flex-end;}
+.detail-panel{background:var(--surface);width:100%;max-width:460px;height:100vh;overflow-y:auto;box-shadow:-4px 0 24px rgba(0,0,0,.15);animation:slideIn .25s ease;display:flex;flex-direction:column;}
+.dp-head{padding:18px 20px 14px;border-bottom:1px solid rgba(255,255,255,.12);display:flex;align-items:flex-start;justify-content:space-between;gap:10px;background:linear-gradient(135deg,#1e3a78 0%,#132a5e 100%);}
+.dp-close{width:30px;height:30px;border-radius:var(--r-sm);border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:rgba(255,255,255,.8);flex-shrink:0;transition:background .15s;}
+.dp-close:hover{background:rgba(255,255,255,.22);}
+.dp-title{font-size:14px;font-weight:600;color:#fff;line-height:1.45;margin-bottom:4px;}
+.dp-id{font-size:10px;font-family:'DM Mono',monospace;color:rgba(255,255,255,.55);margin-bottom:8px;}
+.dp-badges{display:flex;gap:5px;flex-wrap:wrap;}
+.dp-body{padding:20px;flex:1;overflow-y:auto;}
+.dp-sec{font-size:10px;font-weight:700;color:var(--brand-dark);text-transform:uppercase;letter-spacing:.08em;margin:16px 0 8px;display:flex;align-items:center;gap:6px;}
+.dp-sec:first-child{margin-top:0;}
+.dp-sec::before{content:'';display:inline-block;width:3px;height:10px;background:var(--gold);border-radius:2px;}
+.dp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px;}
+.dp-lbl{font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;}
+.dp-val{font-size:12.5px;color:var(--text);font-family:'DM Mono',monospace;word-break:break-all;}
+.dp-val.t{font-family:'DM Sans',sans-serif;word-break:normal;}
+.dp-padre{display:flex;align-items:center;gap:8px;padding:9px 13px;background:var(--gold-xlight);border:1px solid var(--gold-light);border-radius:var(--r-md);font-size:12px;color:var(--amber-text);}
+.dp-padre strong{font-family:'DM Mono',monospace;font-size:11px;}
+.dp-detalle{background:var(--surface2);border-radius:var(--r-md);padding:14px;font-size:12.5px;color:var(--text-2);line-height:1.75;white-space:pre-wrap;word-break:break-word;max-height:260px;overflow-y:auto;}
+.dp-enlace{display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--brand-xlight);border:1px solid var(--brand-light);border-radius:var(--r-md);}
+.dp-enlace a{font-size:12px;color:var(--brand);font-weight:600;text-decoration:none;display:flex;align-items:center;gap:5px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.dp-enlace a:hover{text-decoration:underline;}
+.dp-foot{padding:12px 20px;border-top:1px solid var(--border);background:var(--surface2);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-shrink:0;}
+.dp-foot-txt{font-size:10px;color:var(--text-3);font-family:'DM Mono',monospace;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.dp-foot-btn{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:5px 12px;border-radius:100px;background:var(--brand);color:#fff;text-decoration:none;font-family:'DM Sans',sans-serif;flex-shrink:0;transition:background .15s;}
+.dp-foot-btn:hover{background:var(--brand-dark);}
+
+.source-info{font-size:11px;color:var(--text-3);margin-top:1rem;display:flex;align-items:center;gap:6px;}
+.source-info a{color:var(--brand);text-decoration:none;}
+.source-info a:hover{text-decoration:underline;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+@keyframes slideIn{from{transform:translateX(40px);opacity:0;}to{transform:translateX(0);opacity:1;}}
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+@media(max-width:600px){
+  .page{padding:0 1rem 2rem;}
+  .main-title{font-size:22px;}
+  .detail-panel{max-width:100%;}
+  .header-row{flex-direction:column;}
+  .btn-refresh{width:100%;justify-content:center;}
+  .dp-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo-icon">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f5e6b0" stroke-width="2">
+        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+      </svg>
+    </div>
+    <div style="width:1px;height:24px;background:rgba(255,255,255,.2);margin:0 2px;"></div>
+    <span class="topbar-title">Árbol de Normas DIGEMID</span>
+    <span class="topbar-badge">MINSA</span>
+  </div>
+  <div class="topbar-sync">
+    <span class="sync-dot loading" id="syncDot"></span>
+    <span id="syncText">Cargando…</span>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-row">
+      <div>
+        <p class="breadcrumb">
+          <a href="https://www.digemid.minsa.gob.pe" target="_blank">DIGEMID</a> ›
+          <a href="https://www.digemid.minsa.gob.pe/webDigemid/publicaciones/normas-legales/" target="_blank">Normas Legales</a>
+        </p>
+        <h1 class="main-title">Árbol de Normas Legales</h1>
+        <p class="sub-title">
+          Fuente: <a href="https://www.digemid.minsa.gob.pe/webDigemid/publicaciones/normas-legales/" target="_blank">DIGEMID — Normas Legales</a>
+          · Actualizado: <span id="lastUpdate">—</span>
+        </p>
+      </div>
+      <button class="btn-refresh" id="btnRefresh" onclick="loadData()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M23 4v6h-6M1 20v-6h6"/>
+          <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+        </svg>
+        Actualizar
+      </button>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat"><p class="stat-label">Total normas</p><p class="stat-val" id="stat-total">—</p></div>
+    <div class="stat"><p class="stat-label">Raíces</p><p class="stat-val" id="stat-raices">—</p></div>
+    <div class="stat"><p class="stat-label">Tipos</p><p class="stat-val" id="stat-tipos">—</p></div>
+    <div class="stat"><p class="stat-label">Mostrando</p><p class="stat-val" id="stat-visible">—</p></div>
+    <div class="stat"><p class="stat-label">Con enlace</p><p class="stat-val" id="stat-links">—</p></div>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <div class="search-wrap">
+      <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input class="search-input" id="searchInput" type="text" placeholder="Buscar por título, ID, tipo, subtipo o detalle…">
+    </div>
+    <div class="filter-group" id="filterGroup"></div>
+    <button class="btn-sm" id="btnExpandAll">Expandir todo</button>
+    <button class="btn-sm" id="btnCollapseAll">Colapsar todo</button>
+  </div>
+
+  <p class="sec-label">Estructura normativa</p>
+  <div id="treeContainer">
+    <div class="loading-card">
+      <div class="spinner"></div>
+      <p class="loading-text">Cargando normas DIGEMID…</p>
+    </div>
+  </div>
+  <p class="source-info" id="sourceInfo"></p>
+
+</div>
+
+<!-- PANEL DETALLE -->
+<div class="detail-overlay" id="detailOverlay">
+  <div class="detail-panel">
+    <div class="dp-head">
+      <div style="flex:1;min-width:0;">
+        <p class="dp-title" id="dTitle"></p>
+        <p class="dp-id" id="dIdChip"></p>
+        <div class="dp-badges" id="dBadges"></div>
+      </div>
+      <button class="dp-close" id="detailClose">✕</button>
+    </div>
+    <div class="dp-body">
+      <p class="dp-sec">Identificación</p>
+      <div class="dp-grid">
+        <div><p class="dp-lbl">ID / Código</p><p class="dp-val" id="dId"></p></div>
+        <div><p class="dp-lbl">Fecha publicación</p><p class="dp-val" id="dFecha"></p></div>
+        <div><p class="dp-lbl">Tipo</p><p class="dp-val t" id="dTipo"></p></div>
+        <div><p class="dp-lbl">Subtipo</p><p class="dp-val t" id="dSubtipo"></p></div>
+      </div>
+
+      <div id="dPadreWrap" style="display:none;margin-top:10px;">
+        <p class="dp-sec">Norma base / Padre</p>
+        <div class="dp-padre">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          Modifica / depende de: <strong id="dPadre"></strong>
+        </div>
+      </div>
+
+      <p class="dp-sec" style="margin-top:14px;">Descripción / Detalle</p>
+      <div class="dp-detalle" id="dDetalle"></div>
+
+      <div id="dEnlaceWrap" style="display:none;margin-top:10px;">
+        <p class="dp-sec">Enlace oficial</p>
+        <div class="dp-enlace">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2" style="flex-shrink:0">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+            <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+          </svg>
+          <a id="dEnlace" href="#" target="_blank" rel="noopener">Ver norma en DIGEMID →</a>
+        </div>
+      </div>
+    </div>
+    <div class="dp-foot">
+      <p class="dp-foot-txt" id="dFootTxt"></p>
+      <a id="dFootBtn" href="#" target="_blank" rel="noopener" class="dp-foot-btn" style="display:none;">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+          <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+        </svg>
+        DIGEMID
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   CONFIG — pon la URL de tu JSON en Hostinger
+   ═══════════════════════════════════════════════════════════ */
+const JSON_URL        = 'normas_digemid.json'; // ruta relativa: mismo directorio
+const APPS_SCRIPT_URL = '';                     // opcional: Apps Script tiempo real
+
+/* ── Mappings de badges ─────────────────────────────────── */
+const TIPO_CLS = {
+  'Ley':                    'b-blue',
+  'Decreto Supremo':        'b-coral',
+  'Resolución Ministerial': 'b-amber',
+  'Resolución Directoral':  'b-teal',
+  'Directiva':              'b-teal',
+  'Norma Técnica':          'b-purple',
+  'Reglamento':             'b-coral',
+};
+const SUB_CLS = {
+  'Nueva norma':  'bdg-nueva',
+  'Modificatoria':'bdg-modif',
+  'Derogatoria':  'bdg-deroga',
+};
+const tipoCls = t => TIPO_CLS[t] || 'b-gray';
+const subCls  = s => SUB_CLS[s]  || 'b-gray';
+
+/* ── Utilidades ─────────────────────────────────────────── */
+// Escapa HTML para atributos y contenido
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+// Genera un índice numérico seguro como ID de DOM; usamos un mapa para evitar colisiones
+const _idMap = new Map();
+let   _idCnt = 0;
+function domId(id) {
+  if (!_idMap.has(id)) _idMap.set(id, 'n' + (_idCnt++));
+  return _idMap.get(id);
+}
+function realId(did) {
+  for (const [k,v] of _idMap) if (v === did) return k;
+  return null;
+}
+
+/* ── Estado global ──────────────────────────────────────── */
+let mapaPlano   = {};   // { realId -> nodo } — nodos con hijos ya construidos
+let allNodos    = [];   // raíces del árbol
+let activeFilter = null;
+
+/* ── Construcción del árbol ─────────────────────────────── */
+function construirArbol(flat) {
+  // Clonar y añadir hijos
+  const mapa = {};
+  flat.forEach(n => { mapa[n.id] = { ...n, hijos: [] }; });
+  const raices = {};
+  Object.keys(mapa).forEach(id => {
+    const n = mapa[id];
+    if (n.padre && mapa[n.padre]) {
+      mapa[n.padre].hijos.push(n);
+    } else {
+      raices[id] = n;
+    }
+  });
+  // Ordenar raíces por fecha desc, luego por id asc para estabilidad
+  return Object.values(raices).sort((a, b) => {
+    const df = (b.fecha || '').localeCompare(a.fecha || '');
+    return df !== 0 ? df : a.id.localeCompare(b.id);
+  });
+}
+
+function flattenTree(nodos, dest) {
+  nodos.forEach(n => {
+    dest[n.id] = n;
+    if (n.hijos?.length) flattenTree(n.hijos, dest);
+  });
+}
+
+/* ── Carga de datos ─────────────────────────────────────── */
+async function loadData() {
+  setSyncState('loading', 'Sincronizando…');
+  document.getElementById('btnRefresh').classList.add('spinning');
+  mapaPlano = {};
+  _idMap.clear(); _idCnt = 0;
+
+  try {
+    let data = null, source = '';
+
+    // Intentar Apps Script primero (tiempo real)
+    if (APPS_SCRIPT_URL) {
+      try {
+        const r = await fetch(APPS_SCRIPT_URL, { redirect: 'follow' });
+        if (r.ok) { data = await r.json(); source = 'Apps Script (tiempo real)'; }
+      } catch (_) {}
+    }
+
+    // Fallback: JSON estático
+    if (!data) {
+      const r = await fetch(JSON_URL + '?t=' + Date.now());
+      if (!r.ok) throw new Error(`HTTP ${r.status} — archivo no encontrado`);
+      data = await r.json();
+      source = 'normas_digemid.json';
+    }
+
+    // Detectar formato: jerárquico (Apps Script) o plano (JSON estático)
+    const esJerarquico = Array.isArray(data) && data.length > 0 && Array.isArray(data[0]?.hijos);
+    if (esJerarquico) {
+      allNodos = data;
+      flattenTree(data, mapaPlano);
+    } else {
+      const flat = Array.isArray(data) ? data : [];
+      flat.forEach(n => { mapaPlano[n.id] = n; });
+      allNodos = construirArbol(flat);
+    }
+
+    renderAll(allNodos);
+    buildFilters();
+    updateStats(allNodos);
+
+    setSyncState('ok', 'Actualizado ' + new Date().toLocaleTimeString('es-PE'));
+    document.getElementById('lastUpdate').textContent = new Date().toLocaleString('es-PE');
+    document.getElementById('sourceInfo').innerHTML =
+      `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+       Fuente: ${source} &nbsp;|&nbsp;
+       <a href="https://www.digemid.minsa.gob.pe/webDigemid/publicaciones/normas-legales/" target="_blank">Ver normas en DIGEMID →</a>`;
+
+  } catch (err) {
+    setSyncState('error', 'Error de conexión');
+    document.getElementById('treeContainer').innerHTML =
+      `<div class="error-card">
+         <strong>⚠ No se pudo cargar el JSON</strong><br><br>
+         Verifica que <code>normas_digemid.json</code> esté en la misma carpeta que este HTML.<br><br>
+         <small>Error técnico: ${esc(err.message)}</small>
+       </div>`;
+  } finally {
+    document.getElementById('btnRefresh').classList.remove('spinning');
+  }
+}
+
+function setSyncState(s, t) {
+  document.getElementById('syncDot').className = `sync-dot ${s}`;
+  document.getElementById('syncText').textContent = t;
+}
+
+/* ── Render árbol ───────────────────────────────────────── */
+function renderAll(nodos) {
+  const html = renderTree(nodos, 0);
+  document.getElementById('treeContainer').innerHTML =
+    `<div class="tree-wrap" id="treeWrap">${html || '<div class="no-results">Sin datos disponibles.</div>'}</div>`;
+
+  document.getElementById('searchInput').addEventListener('input', e => applyFilter(e.target.value));
+  document.getElementById('btnExpandAll').onclick  = expandAll;
+  document.getElementById('btnCollapseAll').onclick = collapseAll;
+}
+
+function renderTree(nodos, depth) {
+  if (!nodos?.length) return '';
+  return nodos.map(n => {
+    const hc  = n.hijos?.length > 0;
+    const did = domId(n.id);
+    const ind = Array.from({ length: depth }, () => `<span class="node-indent-line"></span>`).join('');
+    const tgl = hc
+      ? `<div class="node-toggle"><div class="toggle-icon">+</div></div>`
+      : `<div class="node-leaf-dot"><div class="leaf-dot"></div></div>`;
+    const kids = hc ? `<div class="node-children" id="ch-${did}">${renderTree(n.hijos, depth + 1)}</div>` : '';
+    const hasLink = n.enlace && n.enlace.startsWith('http');
+    const linkBtn = hasLink
+      ? `<a class="btn-link" href="${esc(n.enlace)}" target="_blank" rel="noopener"
+            onclick="event.stopPropagation()" title="Ver en DIGEMID">
+           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+             <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+             <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+           </svg>
+         </a>` : '';
+
+    return `
+<div class="node" id="nd-${did}" data-did="${did}" data-tipo="${esc(n.tipo)}">
+  <div class="node-header${hc ? ' has-children' : ''}" id="hd-${did}"
+       onclick="${hc ? `toggle('${did}')` : ''}">
+    <div style="display:flex;align-items:center;">${ind}</div>
+    ${tgl}
+    <div class="node-content">
+      <div class="node-top">
+        <span class="bdg ${tipoCls(n.tipo)}">${esc(n.tipo)}</span>
+        ${n.subtipo ? `<span class="bdg ${subCls(n.subtipo)}">${esc(n.subtipo)}</span>` : ''}
+        <span class="node-title">${esc(n.titulo)}</span>
+      </div>
+      <div class="node-meta">
+        <span class="node-id">${esc(n.id)}</span>
+        ${n.fecha ? `<span class="node-date">📅 ${esc(n.fecha)}</span>` : ''}
+        ${n.padre
+          ? `<span class="node-padre">↑ ${esc(n.padre)}</span>`
+          : `<span class="node-raiz">● Raíz</span>`}
+        ${hc ? `<span>${n.hijos.length} subnorma${n.hijos.length !== 1 ? 's' : ''}</span>` : ''}
+      </div>
+    </div>
+    <div class="node-actions">
+      <button class="btn-detail" onclick="event.stopPropagation();openDetail('${did}')">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>
+        </svg> Ver
+      </button>
+      ${linkBtn}
+    </div>
+  </div>
+  ${kids}
+</div>`;
+  }).join('');
+}
+
+/* ── Toggle manual ──────────────────────────────────────── */
+function toggle(did) {
+  const ch = document.getElementById(`ch-${did}`);
+  const hd = document.getElementById(`hd-${did}`);
+  if (!ch) return;
+  const open = ch.classList.contains('open');
+  ch.classList.toggle('open');
+  hd.classList.toggle('open');
+  const ti = hd.querySelector('.toggle-icon');
+  if (ti) ti.textContent = open ? '+' : '−';
+}
+
+function expandAll() {
+  document.querySelectorAll('.node-children').forEach(e => e.classList.add('open'));
+  document.querySelectorAll('.node-header.has-children').forEach(e => e.classList.add('open'));
+  document.querySelectorAll('.toggle-icon').forEach(e => { e.textContent = '−'; });
+}
+
+function collapseAll() {
+  document.querySelectorAll('.node-children').forEach(e => e.classList.remove('open'));
+  document.querySelectorAll('.node-header.has-children').forEach(e => e.classList.remove('open'));
+  document.querySelectorAll('.toggle-icon').forEach(e => { e.textContent = '+'; });
+}
+
+/* ── Filtro + búsqueda ──────────────────────────────────── 
+   Estrategia:
+   - Los nodos que COINCIDEN se muestran normalmente.
+   - Los nodos ancestros que NO coinciden se ponen en modo "bridge":
+     su header se oculta (CSS .bridge > .node-header{display:none})
+     pero su node-children se fuerza abierto para que los hijos coincidentes sean visibles.
+   - Los nodos que NO coinciden y NO son bridge se ocultan (clase .hidden).
+   - Sin filtro: limpiar todo y restaurar estado colapsado.
+   ─────────────────────────────────────────────────────── */
+function applyFilter(q) {
+  q = (q || '').toLowerCase().trim();
+  const hasFilter = !!(q || activeFilter);
+
+  // — Restaurar estado base —
+  document.querySelectorAll('.node').forEach(el => {
+    el.classList.remove('hidden', 'bridge', 'matched');
+  });
+  document.querySelectorAll('.node-children').forEach(ch => {
+    ch.classList.remove('open');
+    const hd = document.getElementById(ch.id.replace('ch-', 'hd-'));
+    if (hd) { hd.classList.remove('open'); const ti = hd.querySelector('.toggle-icon'); if (ti) ti.textContent = '+'; }
+  });
+
+  if (!hasFilter) {
+    document.getElementById('stat-visible').textContent = Object.keys(mapaPlano).length;
+    return;
+  }
+
+  // — Determinar qué nodos del mapaPlano coinciden —
+  const matchingIds = new Set(); // IDs reales
+  Object.values(mapaPlano).forEach(n => {
+    const tipoOk = !activeFilter || n.tipo === activeFilter;
+    const srch   = `${n.titulo} ${n.id} ${n.detalle || ''} ${n.tipo} ${n.subtipo || ''} ${n.padre || ''} ${n.fecha || ''}`.toLowerCase();
+    const textOk = !q || srch.includes(q);
+    if (tipoOk && textOk) matchingIds.add(n.id);
+  });
+
+  // — Para cada nodo que coincide, marcar sus ancestros como bridge —
+  const bridgeIds = new Set(); // IDs reales de ancestros
+  matchingIds.forEach(rid => {
+    const n = mapaPlano[rid];
+    if (!n) return;
+    // Subir por la cadena de padres
+    let padreId = n.padre;
+    while (padreId && mapaPlano[padreId]) {
+      bridgeIds.add(padreId);
+      padreId = mapaPlano[padreId].padre;
+    }
+  });
+
+  // — Aplicar clases en el DOM —
+  document.querySelectorAll('.node').forEach(el => {
+    const did = el.dataset.did;
+    const rid = realId(did);
+    if (matchingIds.has(rid)) {
+      el.classList.add('matched');          // coincide → visible, resaltado
+    } else if (bridgeIds.has(rid)) {
+      el.classList.add('bridge');           // ancestro → header oculto, children forzado abierto
+    } else {
+      el.classList.add('hidden');           // no relevante → oculto
+    }
+  });
+
+  // — Abrir node-children en la ruta hacia nodos coincidentes —
+  // Para bridge y matched, abrir su contenedor padre
+  matchingIds.forEach(rid => {
+    const did = domId(rid);
+    // Subir por el DOM abriendo node-children
+    const el = document.getElementById(`nd-${did}`);
+    if (!el) return;
+    let parent = el.parentElement;
+    while (parent) {
+      if (parent.classList.contains('node-children')) {
+        parent.classList.add('open');
+        const hd = document.getElementById(parent.id.replace('ch-', 'hd-'));
+        if (hd) { hd.classList.add('open'); const ti = hd.querySelector('.toggle-icon'); if (ti) ti.textContent = '−'; }
+      }
+      parent = parent.parentElement;
+    }
+  });
+
+  document.getElementById('stat-visible').textContent = matchingIds.size;
+}
+
+/* ── Filtros por tipo ───────────────────────────────────── */
+function buildFilters() {
+  const tipos = [...new Set(Object.values(mapaPlano).map(n => n.tipo))].sort();
+  const g = document.getElementById('filterGroup');
+  g.innerHTML = '';
+  tipos.forEach(tipo => {
+    const btn = document.createElement('button');
+    btn.className = 'btn-sm';
+    btn.innerHTML = `<span class="bdg ${tipoCls(tipo)}">${esc(tipo)}</span>`;
+    btn.onclick = () => {
+      activeFilter = activeFilter === tipo ? null : tipo;
+      document.querySelectorAll('#filterGroup .btn-sm').forEach(b => b.classList.remove('active'));
+      if (activeFilter) btn.classList.add('active');
+      applyFilter(document.getElementById('searchInput').value);
+    };
+    g.appendChild(btn);
+  });
+}
+
+/* ── Stats ──────────────────────────────────────────────── */
+function updateStats(raices) {
+  const total = Object.keys(mapaPlano).length;
+  const tipos = new Set(Object.values(mapaPlano).map(n => n.tipo)).size;
+  const links = Object.values(mapaPlano).filter(n => n.enlace && n.enlace.startsWith('http')).length;
+  document.getElementById('stat-total').textContent   = total;
+  document.getElementById('stat-raices').textContent  = raices.length;
+  document.getElementById('stat-tipos').textContent   = tipos;
+  document.getElementById('stat-visible').textContent = total;
+  document.getElementById('stat-links').textContent   = links;
+}
+
+/* ── Panel de detalle — todos los campos del JSON ───────── */
+function openDetail(did) {
+  const rid = realId(did);
+  const n   = mapaPlano[rid];
+  if (!n) return;
+
+  // Cabecera
+  document.getElementById('dTitle').textContent   = n.titulo || '—';
+  document.getElementById('dIdChip').textContent  = n.id || '—';
+  document.getElementById('dBadges').innerHTML    =
+    `<span class="bdg ${tipoCls(n.tipo)}">${esc(n.tipo)}</span>` +
+    (n.subtipo ? `<span class="bdg ${subCls(n.subtipo)}">${esc(n.subtipo)}</span>` : '');
+
+  // Campos identificación
+  document.getElementById('dId').textContent      = n.id     || '—';
+  document.getElementById('dFecha').textContent   = n.fecha  || '—';
+  document.getElementById('dTipo').textContent    = n.tipo   || '—';
+  document.getElementById('dSubtipo').textContent = n.subtipo|| '—';
+
+  // Padre
+  const padreWrap = document.getElementById('dPadreWrap');
+  if (n.padre) {
+    document.getElementById('dPadre').textContent = n.padre;
+    padreWrap.style.display = 'block';
+  } else {
+    padreWrap.style.display = 'none';
+  }
+
+  // Detalle
+  document.getElementById('dDetalle').textContent = n.detalle || 'Sin descripción disponible.';
+
+  // Enlace
+  const enlaceWrap = document.getElementById('dEnlaceWrap');
+  const enlaceEl   = document.getElementById('dEnlace');
+  const footBtn    = document.getElementById('dFootBtn');
+  if (n.enlace && n.enlace.startsWith('http')) {
+    enlaceEl.href = n.enlace;
+    enlaceWrap.style.display = 'block';
+    footBtn.href  = n.enlace;
+    footBtn.style.display = 'inline-flex';
+  } else {
+    enlaceWrap.style.display = 'none';
+    footBtn.style.display    = 'none';
+  }
+
+  // Footer
+  document.getElementById('dFootTxt').textContent =
+    `${n.id}${n.padre ? ' · Padre: ' + n.padre : ' · Nodo raíz'}`;
+
+  document.getElementById('detailOverlay').classList.add('open');
+}
+
+/* ── Cerrar panel ───────────────────────────────────────── */
+document.getElementById('detailClose').onclick = () =>
+  document.getElementById('detailOverlay').classList.remove('open');
+document.getElementById('detailOverlay').onclick = e => {
+  if (e.target === document.getElementById('detailOverlay'))
+    document.getElementById('detailOverlay').classList.remove('open');
+};
+
+/* ── Inicio ─────────────────────────────────────────────── */
+loadData();
+</script>
+</body>
+</html>
